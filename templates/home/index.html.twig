@@ -1,11 +1,55 @@
 {% extends 'base.html.twig' %}
-
+{% block javascripts %}
+	<script src="{{ asset('assets/js/gameSetUp.js')}}"></script>
+{% endblock %}
 {% block body %}
 	<section class="container">
 		<div class="row">
-			<div class="col-12">
+			<div class="col-12 text-center">
 				<h1>WELCOME ON MYTCHUP</h1>
 			</div>
+			<div class="col-3">
+				<h3>Set up a game</h3>
+			</div>
+			<div class="col-4">
+				<h3>Your stats</h3>
+
+			</div>
+			<div class="col-5">
+				<h3>Matchups</h3>
+
+			</div>
+			<div class="col-3">
+				{{ form_start(newGameStat)}}
+				<div id="firstChampion">
+					{{ form_row(newGameStat.firstChampion)}}
+					<div id="secondChampion" class="d-none">
+						{{ form_row(newGameStat.secondChampion)}}
+					</div>
+					<div id="game_won" class="d-none">
+						{{ form_row(newGameStat.game_won)}}
+					</div>
+					<div id="matchup_won" class="d-none">
+						{{ form_row(newGameStat.matchup_won )}}
+					</div>
+					<div id="save" class="d-none">
+						{{ form_row(newGameStat.save)}}
+					</div>
+					{{ form_end(newGameStat)}}
+				</div>
+			</div>
+			<div class="col-2">
+				<h5>Rates%</h5>
+				<p>WinRate : %</p>
+				<p>WinlanesRate : %</p>
+				<p>overallRate : %</p>
+			</div>
+			<div class="col-2">
+				<h5>rawStats</h5>
+				<p>wonGames : 10 / totalGames : 20</p>
+				<p>wonLanes : 8 / evenLanes : 7 / lostLanes : 5</p>
+			</div>
+			<div class="col-5"></div>
 		</div>
 	</section>
 {% endblock %}
