@@ -34,19 +34,31 @@ class HomeController extends AbstractController
             /** @var User $user */
             $user = $this->getUser();
             $picks = $user->getPicks();
+
             $form = $this->createForm(PushNewStatFormType::class);
-            $wonGames = $wonLanes = $totalGames = $totalLanes = 0;
+            $globalWonGames = $globalWonLanes = $globalTotalGames = $globalTotalLanes = 0;
             foreach ($picks as $pick) {
                 $matchups = $pick->getMatchups();
                 foreach ($matchups as $matchup) {
-                    $wonGames = $wonGames + $matchup->getWonGames();
-                    $wonLanes = $wonLanes + $matchup->getWonLanes();
-                    $totalGames = $totalGames + $matchup->getTotalGames();
-                    $totalLanes = $totalLanes + $matchup->getTotalLanes();
+                    $globalWonGames = $globalWonGames + $matchup->getWonGames();
+                    $globalWonLanes = $globalWonLanes + $matchup->getWonLanes();
+                    $globalTotalGames = $globalTotalGames + $matchup->getTotalGames();
+                    $globalTotalLanes = $globalTotalLanes + $matchup->getTotalLanes();
                 }
             }
         }
-        $options = array('Option 1', 'Option 2', 'Option 3', 'Option 4');
-        return $this->render('home/index.html.twig', ['newGameStat' => $form->createView()]);
+        $globalWinRate = $globalLaneWinRate = $globalOverallRate = 0;
+        if ($globalTotalGames != 0) {
+            $globalWinRate = ($globalWonGames / $globalTotalGames) * 100;
+        }
+        if ($globalTotalLanes != 0) {
+            $globalLaneWinRate = ($globalWonLanes / $globalTotalLanes) * 100;
+        }
+        $globalOverallRate = ($globalWinRate + $globalLaneWinRate) / 2;
+        return $this->render('home/index.html.twig', [
+            'newGameStat' => $form->createView(), 'globalWonGames' => $globalWonGames, 'globalWonLanes' => $globalWonLanes,
+            'globalTotalGames' => $globalTotalGames, 'globalTotalLanes' => $globalTotalLanes, 'globalWinRate' => $globalWinRate,
+            'globalLaneWinRate' => $globalLaneWinRate, 'globalOverallRate' => $globalOverallRate
+        ]);
     }
 }

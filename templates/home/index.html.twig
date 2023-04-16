@@ -8,48 +8,71 @@
 			<div class="col-12 text-center">
 				<h1>WELCOME ON MYTCHUP</h1>
 			</div>
-			<div class="col-3">
-				<h3>Set up a game</h3>
-			</div>
-			<div class="col-4">
-				<h3>Your stats</h3>
 
-			</div>
-			<div class="col-5">
-				<h3>Matchups</h3>
-
-			</div>
-			<div class="col-3">
-				{{ form_start(newGameStat)}}
+			<div class="col-6">
+				<h3>Your pick</h3>
 				<div id="firstChampion">
-					{{ form_row(newGameStat.firstChampion)}}
-					<div id="secondChampion" class="d-none">
-						{{ form_row(newGameStat.secondChampion)}}
-					</div>
-					<div id="game_won" class="d-none">
-						{{ form_row(newGameStat.game_won)}}
-					</div>
-					<div id="matchup_won" class="d-none">
-						{{ form_row(newGameStat.matchup_won )}}
-					</div>
-					<div id="save" class="d-none">
-						{{ form_row(newGameStat.save)}}
-					</div>
-					{{ form_end(newGameStat)}}
+					{{ form_start(newGameStat)}}
+					{{ form_widget(newGameStat.firstChampion)}}
 				</div>
 			</div>
-			<div class="col-2">
-				<h5>Rates%</h5>
-				<p>WinRate : %</p>
-				<p>WinlanesRate : %</p>
-				<p>overallRate : %</p>
+			<div class="col-6">
+				<h3>Your enemy</h3>
+				<div id="secondChampion">
+					{{ form_row(newGameStat.secondChampion)}}
+				</div>
 			</div>
-			<div class="col-2">
-				<h5>rawStats</h5>
-				<p>wonGames : 10 / totalGames : 20</p>
-				<p>wonLanes : 8 / evenLanes : 7 / lostLanes : 5</p>
+			<div class="col-6">
+				<div id="game_won" class="d-none">
+					{{ form_row(newGameStat.game_won)}}
+				</div>
 			</div>
-			<div class="col-5"></div>
+			<div class="col-6">
+				<div id="matchup_won" class="d-none">
+					{{ form_row(newGameStat.matchup_won )}}
+				</div>
+			</div>
+			<div class="col-12 text-center">
+				<div id="save" class="d-none">
+					{{ form_row(newGameStat.save)}}
+				</div>
+				{{ form_end(newGameStat)}}</div>
 		</div>
-	</section>
-{% endblock %}
+		<div class="col-6">
+			<h3>Your stats</h3>
+
+		</div>
+		<div class="col-6">
+			<h3>Matchups</h3>
+
+		</div>
+		<div class="col-3">
+			<h5>Rates%</h5>
+
+			<p>WinRate :
+				{{globalWinRate}}%</p>
+			<p>Lane Domination :
+				{{globalLaneWinRate}}%</p>
+
+			<p>overallRate :
+				{{globalOverallRate}}%</p>
+			<div id="champion-stats"></div>
+			<div id="encounter-stats"></div>
+		</div>
+		<div class="col-3">
+			<h5>rawStats</h5>
+			<p>wonGames :
+				{{globalWonGames}}
+				/
+				{{globalTotalGames}}</p>
+			<p>Dominated lanes :
+				{{globalWonLanes}}
+				/
+				{{globalTotalLanes}}</p>
+			<div id="champion-raw-stats"></div>
+			<div id="encounter-raw-stats"></div>
+		</div>
+
+		<div class="col-6"></div>
+	</div>
+</section>{% endblock %}

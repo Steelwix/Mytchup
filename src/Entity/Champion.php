@@ -6,15 +6,21 @@ use App\Repository\ChampionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ChampionRepository::class)]
 class Champion
 {
+    /**
+     * @Groups({"getChampion", "getEncounter"})
+     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-
+    /**
+     * @Groups({"getChampion", "getEncounter"})
+     */
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $name = null;
 

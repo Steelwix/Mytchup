@@ -95,7 +95,13 @@ class Pick
             $totalGames = $totalGames + $matchup->getTotalGames();
             $wonGames = $wonGames + $matchup->getWonGames();
         }
-        return (($wonGames / $totalGames) * 100);
+        if ($totalGames != 0) {
+
+
+            return (($wonGames / $totalGames) * 100);
+        } else {
+            return 0;
+        }
     }
     public function getWinLanesRate(): string
     {
@@ -105,6 +111,10 @@ class Pick
             $totalGames = $totalGames + $matchup->getTotalLanes();
             $wonGames = $wonGames + $matchup->getWonLanes();
         }
-        return (($wonGames / $totalGames) * 100);
+        if ($totalGames != 0) {
+            return (($wonGames / $totalGames) * 100);
+        } else {
+            return 0;
+        }
     }
 }
