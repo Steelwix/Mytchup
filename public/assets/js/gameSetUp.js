@@ -5,9 +5,6 @@ var matchupWon = document.getElementById('matchup_won');
 var save = document.getElementById('save');
 var globalWin = document.getElementById('globalWin');
 
-
-
-
 secondChampion.addEventListener('change', function () {
     if (this.value !== '- Select -') {
         gameWon.classList.remove('d-none');
@@ -35,18 +32,16 @@ const dataAboutChampion = document.getElementById('push_new_stat_form_firstChamp
 dataAboutChampion.addEventListener('change', () => {
     // When the value changes, use AJAX to send a request to your Symfony controller
     const selectedOption = dataAboutChampion.options[dataAboutChampion.selectedIndex];
-    const displayedValue = selectedOption.text;
+    const pickedChampion = selectedOption.text;
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/ajax/my-pick');
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify({ champion: displayedValue }));
+    xhr.send(JSON.stringify({ champion: pickedChampion }));
     xhr.onload = function () {
         if (xhr.status === 200) {
             // Receive the response from the Symfony controller and update the view
             const responseData = JSON.parse(xhr.response);
-            console.log(responseData);
             const champion = JSON.parse(responseData.champion);
-            console.log(champion);
             // Update the view with the responseData
             const championDetailsDiv = document.getElementById('champion-stats');
             championDetailsDiv.innerHTML = `
@@ -76,18 +71,16 @@ const dataAboutEncounter = document.getElementById('push_new_stat_form_secondCha
 dataAboutEncounter.addEventListener('change', () => {
     // When the value changes, use AJAX to send a request to your Symfony controller
     const selectedOption = dataAboutEncounter.options[dataAboutEncounter.selectedIndex];
-    const displayedValue = selectedOption.text;
+    const EncounterChamp = selectedOption.text;
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/ajax/my-encounter');
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify({ encounter: displayedValue }));
+    xhr.send(JSON.stringify({ encounter: EncounterChamp }));
     xhr.onload = function () {
         if (xhr.status === 200) {
             // Receive the response from the Symfony controller and update the view
             const responseData = JSON.parse(xhr.response);
-            console.log(responseData);
             const encounter = JSON.parse(responseData.encounter);
-            console.log(encounter);
             // Update the view with the responseData
             const EncounterDetailsDiv = document.getElementById('encounter-stats');
             EncounterDetailsDiv.innerHTML = `
@@ -112,4 +105,36 @@ dataAboutEncounter.addEventListener('change', () => {
             `;
         }
     }
+});
+function handleChampionChange() {
+
+    console.log(dataAboutChampion);
+    console.log(dataAboutEncounter);
+    const selectedPicked = dataAboutChampion.options[dataAboutChampion.selectedIndex];
+    const pickedChamp = selectedPicked.text;
+    const selectedEncounter = dataAboutEncounter.options[dataAboutEncounter.selectedIndex];
+    const encounterChamp = selectedEncounter.text;
+    console.log(pickedChamp);
+    console.log(encounterChamp);
+    // Create XMLHttpRequest object
+    const xhr = new XMLHttpRequest();
+
+    // Configure and send AJAX request
+    xhr.open('POST', '/ajax/my-matchup');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(`firstChampion=${pickedChamp}&secondChampion=${encounterChamp}`);
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            const responseData = JSON.parse(xhr.response);
+            console.log(responseData);
+        } else {
+            // Handle error from controller
+        }
+    };
+
+}
+
+// Add event listener to both elements
+document.querySelectorAll('#push_new_stat_form_firstChampion, #push_new_stat_form_secondChampion').forEach(element => {
+    element.addEventListener('change', handleChampionChange);
 });

@@ -116,4 +116,14 @@ class AjaxController extends AbstractController
             ['Content-Type' => 'application/json']
         );
     }
+    #[Route('/ajax/my-matchup', name: 'app_ajax_my_matchup')]
+    public function getMatchup(Request $request): JsonResponse
+    {
+        $matchup = json_decode($request->getContent(), true);
+        return new JsonResponse(
+            $matchup,
+            Response::HTTP_OK,
+            ['Content-Type' => 'application/json']
+        );
+    }
 }
