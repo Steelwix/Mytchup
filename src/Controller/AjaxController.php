@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Champion;
+use App\Entity\Matchup;
+use App\Entity\Pick;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,6 +24,7 @@ class AjaxController extends AbstractController
         $this->em = $em;
         $this->serializer = $serializer;
     }
+
     #[Route('/ajax/my-pick', name: 'app_ajax_my_pick')]
     public function getChampion(Request $request): JsonResponse
     {
@@ -55,12 +58,12 @@ class AjaxController extends AbstractController
         }
         $champion = $this->serializer->serialize($champion, 'json', ['groups' => ['getChampion']]);
         $responseData = [
-            'champion' => $champion,
-            'pickWonGames' => $pickWonGames,
-            'pickWonLanes' => $pickWonLanes,
-            'pickTotalGames' => $pickTotalGames,
-            'pickTotalLanes' => $pickTotalLanes,
-            'pickWinRate' => $pickWinRate,
+            'champion'        => $champion,
+            'pickWonGames'    => $pickWonGames,
+            'pickWonLanes'    => $pickWonLanes,
+            'pickTotalGames'  => $pickTotalGames,
+            'pickTotalLanes'  => $pickTotalLanes,
+            'pickWinRate'     => $pickWinRate,
             'pickLaneWinRate' => $pickLaneWinRate,
             'pickOverallRate' => $pickOverallRate
         ];
@@ -70,6 +73,7 @@ class AjaxController extends AbstractController
             ['Content-Type' => 'application/json']
         );
     }
+
     #[Route('/ajax/my-encounter', name: 'app_ajax_my_encounter')]
     public function getEncounter(Request $request): JsonResponse
     {
@@ -101,12 +105,12 @@ class AjaxController extends AbstractController
 
         $encounter = $this->serializer->serialize($encounter, 'json', ['groups' => ['getEncounter']]);
         $responseData = [
-            'encounter' => $encounter,
-            'encounterWonGames' => $encounterWonGames,
-            'encounterWonLanes' => $encounterWonLanes,
-            'encounterTotalGames' => $encounterTotalGames,
-            'encounterTotalLanes' => $encounterTotalLanes,
-            'encounterWinRate' => $encounterWinRate,
+            'encounter'            => $encounter,
+            'encounterWonGames'    => $encounterWonGames,
+            'encounterWonLanes'    => $encounterWonLanes,
+            'encounterTotalGames'  => $encounterTotalGames,
+            'encounterTotalLanes'  => $encounterTotalLanes,
+            'encounterWinRate'     => $encounterWinRate,
             'encounterLaneWinRate' => $encounterLaneWinRate,
             'encounterOverallRate' => $encounterOverallRate
         ];
@@ -116,12 +120,69 @@ class AjaxController extends AbstractController
             ['Content-Type' => 'application/json']
         );
     }
+
     #[Route('/ajax/my-matchup', name: 'app_ajax_my_matchup')]
     public function getMatchup(Request $request): JsonResponse
     {
-        $matchup = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true);
+        $playerPick = $this->em->getRepository(Champion::class)->findOneByName(['name' => $data['pick']]);
+        $encounter = $this->em->getRepository(Champion::class)->findOneByName(['name' => $data['encounter']]);
+        $matchups = [];
+        /** @var User $user */
+        $user = $this->getUser();
+        $qb = $this->em->createQueryBuilder();
+        $wonGames = $wonLanes = $totalGames = $totalLanes = $winRate = $winLaneRate = $overallWinRate = 0;
+        $qb->select('p')
+            ->from(Pick::class, 'p')
+            ->where('p.player = :user')
+            ->andWhere('p.champion = :champion')
+            ->setParameters([
+                                'user' => $user,
+                                'champion' => $playerPick
+                            ]);
+
+        $picks = $qb->getQuery()->getResult();
+        foreach ($picks as $pick){
+        $qb = $this->em->createQueryBuilder();
+        $qb->select('m')
+            ->from(Matchup::class, 'm')
+            ->join('m.pick', 'p')
+            ->where('p.id = :pick_id')
+            ->andWhere('m.opponent = :opponent')
+            ->setParameters([
+                                'pick_id' => $pick->getId(),
+                                'opponent' => $encounter
+                            ]);
+
+        $matchups = $qb->getQuery()->getResult();
+            foreach ($matchups as $matchup){
+                $wonGames += $matchup->getWonGames();
+                $wonLanes += $matchup->getWonLanes();
+                $totalGames += $matchup->getTotalGames();
+                $totalLanes += $matchup->getTotalLanes();
+            }
+        }
+        if ($totalGames != 0) {
+            $winRate = ($wonGames / $totalGames) * 100;
+        }
+        if ($totalLanes != 0) {
+            $winLaneRate = ($wonLanes / $totalLanes) * 100;
+        }
+        $overallWinRate = ($winLaneRate + $winRate) / 2;
+        $playerPick = $this->serializer->serialize($playerPick, 'json', ['groups' => ['getChampion']]);
+        $encounter = $this->serializer->serialize($encounter, 'json', ['groups' => ['getChampion']]);
+        $responseData = [
+            'wonGames'            => $wonGames,
+            'wonLanes'    => $wonLanes,
+            'totalGames'    => $totalGames,
+            'totalLanes'  => $totalLanes,
+            'pick' =>  $playerPick,
+            'encounter' => $encounter,
+            'winRate' => $winRate,
+            'winLaneRate' => $winLaneRate,
+            'overallWinrate'=> $overallWinRate];
         return new JsonResponse(
-            $matchup,
+            $responseData,
             Response::HTTP_OK,
             ['Content-Type' => 'application/json']
         );

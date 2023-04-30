@@ -33,6 +33,7 @@ dataAboutChampion.addEventListener('change', () => {
     // When the value changes, use AJAX to send a request to your Symfony controller
     const selectedOption = dataAboutChampion.options[dataAboutChampion.selectedIndex];
     const pickedChampion = selectedOption.text;
+    handleChampionChange();
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/ajax/my-pick');
     xhr.setRequestHeader('Content-Type', 'application/json');
@@ -72,6 +73,7 @@ dataAboutEncounter.addEventListener('change', () => {
     // When the value changes, use AJAX to send a request to your Symfony controller
     const selectedOption = dataAboutEncounter.options[dataAboutEncounter.selectedIndex];
     const EncounterChamp = selectedOption.text;
+    handleChampionChange()
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/ajax/my-encounter');
     xhr.setRequestHeader('Content-Type', 'application/json');
@@ -108,33 +110,47 @@ dataAboutEncounter.addEventListener('change', () => {
 });
 function handleChampionChange() {
 
-    console.log(dataAboutChampion);
-    console.log(dataAboutEncounter);
     const selectedPicked = dataAboutChampion.options[dataAboutChampion.selectedIndex];
     const pickedChamp = selectedPicked.text;
     const selectedEncounter = dataAboutEncounter.options[dataAboutEncounter.selectedIndex];
     const encounterChamp = selectedEncounter.text;
     console.log(pickedChamp);
     console.log(encounterChamp);
-    // Create XMLHttpRequest object
+if(pickedChamp != '- Select -' && encounterChamp !=  '- Select -'){
     const xhr = new XMLHttpRequest();
-
-    // Configure and send AJAX request
     xhr.open('POST', '/ajax/my-matchup');
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(`firstChampion=${pickedChamp}&secondChampion=${encounterChamp}`);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send(JSON.stringify({ pick: pickedChamp,  encounter: encounterChamp}));
     xhr.onload = function () {
         if (xhr.status === 200) {
             const responseData = JSON.parse(xhr.response);
             console.log(responseData);
-        } else {
-            // Handle error from controller
+            const encounter = JSON.parse(responseData.encounter);
+            const pick = JSON.parse(responseData.pick);
+            // Update the view with the responseData
+            const EncounterDetailsDiv = document.getElementById('matchup-stats');
+            EncounterDetailsDiv.innerHTML = `
+            <h5>${pick.name} Versus ${encounter.name} matchup % rates : </h5>
+
+            <p>WinRate :
+                ${responseData.winRate}%</p>
+            <p>Lane Domination :
+                ${responseData.winLaneRate}%</p>
+
+            <p>overallRate :
+                ${responseData.overallWinrate}%</p>
+            `;
+            const EncounterRawStat = document.getElementById('matchup-raw-stats');
+            EncounterRawStat.innerHTML = `
+            <h5>${pick.name} Versus ${encounter.name} matchup rates : </h5>
+
+            <p>WonGames :
+                ${responseData.wonGames} / ${responseData.totalGames} </p>
+            <p>Lane Domination :
+                ${responseData.wonLanes} / ${responseData.totalGames}</p>
+            `;
         }
+
     };
 
-}
-
-// Add event listener to both elements
-document.querySelectorAll('#push_new_stat_form_firstChampion, #push_new_stat_form_secondChampion').forEach(element => {
-    element.addEventListener('change', handleChampionChange);
-});
+}}

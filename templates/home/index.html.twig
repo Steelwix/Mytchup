@@ -37,7 +37,6 @@
 					{{ form_row(newGameStat.save)}}
 				</div>
 				{{ form_end(newGameStat)}}</div>
-		</div>
 		<div class="col-6">
 			<h3>Your stats</h3>
 
@@ -58,6 +57,7 @@
 				{{globalOverallRate}}%</p>
 			<div id="champion-stats"></div>
 			<div id="encounter-stats"></div>
+			<div id="matchup-stats"></div>
 		</div>
 		<div class="col-3">
 			<h5>rawStats</h5>
@@ -71,8 +71,9 @@
 				{{globalTotalLanes}}</p>
 			<div id="champion-raw-stats"></div>
 			<div id="encounter-raw-stats"></div>
+			<div id="matchup-raw-stats"></div>
 		</div>
 
 		<div class="col-6"></div>
 	</div>
-</section>{% endblock %}
+	</section>{% endblock %}
