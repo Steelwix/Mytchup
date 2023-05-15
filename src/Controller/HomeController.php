@@ -27,7 +27,8 @@ class HomeController extends AbstractController
     {
         $championRepository = $this->em->getRepository(Champion::class);
         $storedChamps = $championRepository->findAll();
-
+        $globalWonGames = $globalWonLanes = $globalTotalGames = $globalTotalLanes = 0;
+        $form = $this->createForm(PushNewStatFormType::class);
         if ($this->getUser() != null) {
 
 
@@ -35,8 +36,8 @@ class HomeController extends AbstractController
             $user = $this->getUser();
             $picks = $user->getPicks();
 
-            $form = $this->createForm(PushNewStatFormType::class);
-            $globalWonGames = $globalWonLanes = $globalTotalGames = $globalTotalLanes = 0;
+
+
             foreach ($picks as $pick) {
                 $matchups = $pick->getMatchups();
                 foreach ($matchups as $matchup) {
