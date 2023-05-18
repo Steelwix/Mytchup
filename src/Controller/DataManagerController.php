@@ -29,20 +29,29 @@ class DataManagerController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
         $picks = $user->getPicks();
-        //Display 4 forms row foreach Champions, and in view just make foreach champ
-        //Associate the line number to the champion number
-//        $playerStat = [];
-//        foreach ($champions as $champion){
-//            $name = $champion->getName();
-//            getMatchup
-//            $gameStats = ... ;
-//            $playerStat[$name] = $gameStats
-//
-//
-//        }
-        //Select your champ by clicking on the played champ (display only already played champ)
-        //
+        $datas = [];
+        foreach ($picks as $pick){
+        $matchups = $pick->getMatchups();
+        $pickName = $pick->getChampion()->getName();
+        foreach ($matchups as $matchup){
+            $championName = $matchup->getOpponent()->getName();
+            $datas[$pickName][$championName]['wonGames'] = $matchup->getWonGames();
+            $datas[$pickName][$championName]['wonLanes'] = $matchup->getWonLanes();
+            $datas[$pickName][$championName]['totalGames'] = $matchup->getTotalGames();
+            $datas[$pickName][$championName]['totalLanes'] = $matchup->getTotalLanes();
+        }
 
-        return $this->render('data_manager/index.html.twig', ['picks' => $picks]);
+        foreach ($champions as $champion){
+            if( !isset($datas[$pickName][$champion->getName()]['wonGames'])){
+                $datas[$pickName][$champion->getName()]['wonGames'] = 0;
+                $datas[$pickName][$champion->getName()]['totalGames'] = 0;
+                $datas[$pickName][$champion->getName()]['wonLanes'] = 0;
+                $datas[$pickName][$champion->getName()]['totalLanes'] = 0;
+            }
+        }}
+        usort($champions, function($a, $b) {
+            return strcmp($a->getName(), $b->getName());
+        });
+        return $this->render('data_manager/index.html.twig', ['picks' => $picks, 'champions' => $champions, 'datas' => $datas]);
     }
 }

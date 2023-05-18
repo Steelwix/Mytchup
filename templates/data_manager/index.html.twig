@@ -9,11 +9,51 @@
                 {% for pick in picks %}
                     <div class="col-1">
                 <a href="">
-                        {{ pick.champion.name }}
+                    {% set picked = pick.champion.name %}
+                        {{ picked }}
                 </a>
                     </div>
-                {% endfor %}
+
             </div>
+            <div class="col-4">
+                <p>Champion encountered</p>
+            </div>
+            <div class="col-2">
+                <p>Won games</p>
+            </div>
+            <div class="col-2">
+                <p>Total games</p>
+            </div>
+            <div class="col-2">
+                <p>Won Lanes</p>
+            </div>
+            <div class="col-2">
+                <p>total Lanes (even not counted)</p>
+            </div>
+        </div>
+        <form>
+        <div class="row">
+<div class="col-12">
+                <input type="submit" value="Submit">
+</div>
+                {% for champion in champions %}
+            <div class="col-4">
+                {% set opponent = champion.name %}
+                <p>{{ opponent }}</p>
+            </div>
+
+            <div class="col-8">
+                <input type="number" id="{{ champion.name }} WG" name="{{ champion.name }} WG"
+                       minlength="0" size="10" value="{{ datas[picked][opponent].wonGames }}">
+                <input type="number" id="{{ champion.name }} TG" name="{{ champion.name }} TG"
+                       minlength="0"  size="10" value="{{ datas[picked][opponent].totalGames }}">
+                <input type="number" id="{{ champion.name }} WL" name="{{ champion.name }} WL"
+                       minlength="0"  size="10" value="{{ datas[picked][opponent].wonLanes }}">
+                <input type="number" id="{{ champion.name }} TL" name="{{ champion.name }} TL"
+                       minlength="0"  size="10" value="{{ datas[picked][opponent].totalLanes }}">
+            </div>
+                </form>
+            {% endfor %}{% endfor %}
         </div>
     </div>
 
