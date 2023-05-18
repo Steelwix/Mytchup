@@ -3,7 +3,7 @@
 {% block title %}Data Manager{% endblock %}
 
 {% block body %}
-    <div class="container">
+    <section class="container">
         <div class="row">
             <div class="col-12">
                 {% for pick in picks %}
@@ -52,9 +52,9 @@
                 <input type="number" id="{{ champion.name }} TL" name="{{ champion.name }} TL"
                        minlength="0"  size="10" value="{{ datas[picked][opponent].totalLanes }}">
             </div>
-                </form>
-            {% endfor %}{% endfor %}
-        </div>
-    </div>
+
+                {% endfor %}</div></form>{% endfor %}
+        </section>
+
 
 {% endblock %}
