@@ -23,8 +23,7 @@ class DataManagerController extends AbstractController
     #[Route('/data', name: 'app_data_manager')]
     public function index(Request $request): Response
     {
-        $form = $this->createForm(DataManagerFormType::class);
-        $form->handleRequest($request);
+
         $champions = $this->em->getRepository(Champion::class)->findAll();
         /** @var User $user */
         $user = $this->getUser();
@@ -52,6 +51,7 @@ class DataManagerController extends AbstractController
         usort($champions, function($a, $b) {
             return strcmp($a->getName(), $b->getName());
         });
+
         return $this->render('data_manager/index.html.twig', ['picks' => $picks, 'champions' => $champions, 'datas' => $datas]);
     }
 }

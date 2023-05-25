@@ -187,4 +187,15 @@ class AjaxController extends AbstractController
             ['Content-Type' => 'application/json']
         );
     }
+    #[Route('/ajax/data-insert', name: 'app_ajax_data_insert')]
+    public function insertData(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        dump($data);
+        return new JsonResponse(
+            $data,
+            Response::HTTP_OK,
+            ['Content-Type' => 'application/json']
+        );
+    }
 }

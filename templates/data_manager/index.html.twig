@@ -1,7 +1,9 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Data Manager{% endblock %}
-
+{% block javascripts %}
+    <script src="{{ asset('assets/js/submitDatas.js')}}"></script>
+{% endblock %}
 {% block body %}
     <section class="container">
         <div class="row">
@@ -31,10 +33,10 @@
                 <p>total Lanes (even not counted)</p>
             </div>
         </div>
-        <form>
+        <form id = "form">
         <div class="row">
 <div class="col-12">
-                <input type="submit" value="Submit">
+    <a class="btn btn-primary" id="submit">Submit</a>
 </div>
                 {% for champion in champions %}
             <div class="col-4">
