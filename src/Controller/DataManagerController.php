@@ -10,13 +10,17 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 
 class DataManagerController extends AbstractController
 {
+    private $httpClient;
     private $em;
-    public function __construct(EntityManagerInterface $em)
+
+    public function __construct(HttpClientInterface $httpClient, EntityManagerInterface $em)
     {
+        $this->httpClient = $httpClient;
         $this->em = $em;
     }
 
@@ -53,5 +57,45 @@ class DataManagerController extends AbstractController
         });
 
         return $this->render('data_manager/index.html.twig', ['picks' => $picks, 'champions' => $champions, 'datas' => $datas]);
+    }
+
+
+    #[Route('/data/getAllChamps', name: 'get_all_champs_from_api')]
+    public function getApiAllChamps(): void
+    {
+        $version = '13.7.1';
+        $language = 'en_US';
+        $apiKey = 'RGAPI-188c0b8b-fe79-4505-b039-107e42c931ec';
+
+        $url = sprintf('https://ddragon.leagueoflegends.com/cdn/%s/data/%s/champion.json', $version, $language);
+
+        $response = $this->httpClient->request('GET', $url, [
+            'headers' => [
+                'X-Riot-Token' => $apiKey,
+            ],
+        ]);
+
+        $data = json_decode($response->getContent(), true);
+
+        $championRepository = $this->em->getRepository(Champion::class);
+        $storedChamps = $championRepository->findAll();
+        $champInDatabase = array();
+        foreach ($storedChamps as $stored) {
+            $champInDatabase[] = $stored->getName();
+        }
+        $champNames = array_map(function ($champ) {
+            return $champ['name'];
+        }, $data['data']);
+
+        $missingChamps = array_diff($champNames, $champInDatabase);
+
+        if (count($missingChamps) !== 0) {
+            foreach ($missingChamps as $missing) {
+                $newChamp = new Champion;
+                $newChamp->setName($missing);
+                $this->em->persist($newChamp);
+                $this->em->flush();
+            }
+        }
     }
 }
