@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Champion;
 use App\Entity\Matchup;
 use App\Entity\Pick;
+use App\Service\MatchupManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,10 +20,15 @@ class AjaxController extends AbstractController
     private $em;
     private $serializer;
 
-    public function __construct(EntityManagerInterface $em, SerializerInterface $serializer)
+    private $matchupManager;
+
+    public function __construct(EntityManagerInterface $em,
+                                SerializerInterface $serializer,
+                                MatchupManager $matchupManager)
     {
         $this->em = $em;
         $this->serializer = $serializer;
+        $this->matchupManager = $matchupManager;
     }
 
     #[Route('/ajax/my-pick', name: 'app_ajax_my_pick')]
@@ -190,12 +196,66 @@ class AjaxController extends AbstractController
     #[Route('/ajax/data-insert', name: 'app_ajax_data_insert')]
     public function insertData(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        dump($data);
+        $datas = json_decode($request->getContent(), true);
+        $stocked = [];
+        foreach ($datas as $data){
+            $string = $data['id'];
+            $value = $data['value'];
+            $parts = explode(" vs ", $string);
+            $first_name = $parts[0];
+            $second_name = substr($parts[1], 0, -2);
+            $second_name = trim($second_name);
+            $trade = substr($parts[1], -2);
+            $trade = trim($trade);
+            if($trade == "TG"){
+                if($value == 0){
+                    continue;
+                }
+            }
+            $playing = $this->em->getRepository(Champion::class)->findOneByName(['name' => $second_name]);
+            $pick = $this->em->getRepository(Pick::class)->findByUserAndChampion($this->getUser(),  $playing);
+            $opponent = $this->em->getRepository(Champion::class)->findOneByName(['name' => $first_name]);
+            $stockedMatchup = $this->matchupManager->filterNewMatchupsByChampions($stocked, $second_name, $first_name);
+            if($stockedMatchup == false){
+                $matchups = $this->matchupManager->getMatchupsFromUser($this->getUser());
+                $matchup = $this->matchupManager->filterMatchupsByChampions($matchups, $playing, $opponent);
+            }
+            //MANAGE IF MATCHUP ALREADY EXIST
+                $matchup = [];
+                    $matchup['pick'] = $second_name;
+                    $matchup['opponent'] = $first_name;
+                switch ($trade){
+                    case "WG":
+                        $matchup['WG'] = $value;
+                        break;
+                    case "TG":
+                        $matchup['TG'] = $value;
+                        break;
+                    case "WL":
+                        $matchup['WL'] = $value;
+                        break;
+                    case "TL":
+                        $matchup['TL'] = $value;
+                        break;
+                }
+                $stocked[] = $matchup;
+    }
+        foreach ($stocked as $stock){
+            $matchup = new Matchup();
+            $matchup->setPick($stock['pick']);
+            $matchup->setOpponent($stock['opponent']);
+            $matchup->setWonGames($stock['WG']);
+            $matchup->setTotalGames($stock['TG']);
+            $matchup->setWonLanes($stock['WL']);
+            $matchup->setTotalLanes($stock['TL']);
+            $this->em->persist($stock);
+        }
+        dump("FLUSH");
+        //$this->em->flush();
         return new JsonResponse(
-            $data,
+            null,
             Response::HTTP_OK,
             ['Content-Type' => 'application/json']
         );
-    }
-}
+    }}
+

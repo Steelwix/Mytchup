@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Champion;
 use App\Entity\Pick;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -37,6 +39,16 @@ class PickRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function findByUserAndChampion(User $user, Champion $champion){
+        return $this->createQueryBuilder('p')
+            ->where('p.player = :user')
+            ->andWhere('p.champion = :champion')
+            ->setParameter('user', $user)
+            ->setParameter('champion', $champion)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
 //    /**
