@@ -54,6 +54,16 @@ class PickRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    public function findByUserAndChampion(User $user, Champion $champion){
+        return $this->createQueryBuilder('p')
+            ->where('p.player = :user')
+            ->andWhere('p.champion = :champion')
+            ->setParameter('user', $user)
+            ->setParameter('champion', $champion)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
 //    /**
 //     * @return Pick[] Returns an array of Pick objects
 //     */
