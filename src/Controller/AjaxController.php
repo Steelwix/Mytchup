@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Champion;
 use App\Entity\Matchup;
 use App\Entity\Pick;
+use App\Service\MatchupService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,11 +19,15 @@ class AjaxController extends AbstractController
 
     private $em;
     private $serializer;
+    private $matchupService;
 
-    public function __construct(EntityManagerInterface $em, SerializerInterface $serializer)
+    public function __construct(EntityManagerInterface $em,
+                                SerializerInterface $serializer,
+                                MatchupService $matchupService)
     {
         $this->em = $em;
         $this->serializer = $serializer;
+        $this->matchupService = $matchupService;
     }
 
     #[Route('/ajax/my-pick', name: 'app_ajax_my_pick')]
@@ -130,8 +135,8 @@ class AjaxController extends AbstractController
         $matchups = [];
         /** @var User $user */
         $user = $this->getUser();
-        $qb = $this->em->createQueryBuilder();
         $wonGames = $wonLanes = $totalGames = $totalLanes = $winRate = $winLaneRate = $overallWinRate = 0;
+        $qb = $this->em->createQueryBuilder();
         $qb->select('p')
             ->from(Pick::class, 'p')
             ->where('p.player = :user')
@@ -190,10 +195,36 @@ class AjaxController extends AbstractController
     #[Route('/ajax/data-insert', name: 'app_ajax_data_insert')]
     public function insertData(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        dump($data);
-        return new JsonResponse(
-            $data,
+        $datas = json_decode($request->getContent(), true);
+
+        $matchups = $return = [];
+        foreach ($datas as $data){
+
+            $matchups[$data['id']]['match_case'][$data['matchCase']] = $data['value'];
+            $match_check = $matchups[$data['id']]['match_case'];
+            $wantedMatches = ["WG", "TG", "WL", "TL"];
+            $count = 0;
+
+            foreach ($wantedMatches as $key) {
+                if (array_key_exists($key, $match_check)) {
+                    $count++;
+                }
+            }
+            $return[] = $match_check;
+            if($count == 4 && $match_check['TG'] > 0){
+                $return[] = 'FIRST IF';
+                if($this->matchupService->matchupExists($data['id'], $data['class'], $this->getUser()) == false){
+                    $return[] = 'SECOND IF';
+                $this->matchupService->createMatchup($data['id'], $match_check, $data['class'], $this->getUser());
+            }
+            else {
+                $return[] = 'SECOND IF (ELSE)';
+                $this->matchupService->updateMatchup($data['id'], $match_check, $data['class'], $this->getUser());
+            }}
+        }
+        $return[] = 'FLUSH';
+        $this->em->flush();
+        return new JsonResponse($return,
             Response::HTTP_OK,
             ['Content-Type' => 'application/json']
         );

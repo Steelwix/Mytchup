@@ -2,7 +2,6 @@ var submit = document.getElementById('submit');
 var form = document.getElementById('form');
 var col8Divs = form.querySelectorAll('.col-8');
 
-
 submit.addEventListener('click', function () {
     var contentArray = Array.from(col8Divs).map(function(div) {
         return div.innerHTML;
@@ -13,9 +12,10 @@ submit.addEventListener('click', function () {
 
         inputs.forEach(function(input) {
             var inputId = input.id;
+            var inputMatchCase = input.name;
             var inputValue = input.value;
-
-            inputsData.push({ id: inputId, value: inputValue });
+            var inputClass = div.classList.contains("matchup-data") ? div.classList[2] : "";
+            inputsData.push({ id: inputId, value: inputValue, matchCase: inputMatchCase, class: inputClass });
         });
     });
 
@@ -30,5 +30,6 @@ submit.addEventListener('click', function () {
         if (xhr.status === 200) {
             // Receive the response from the Symfony controller and update the view
             const responseData = JSON.parse(xhr.response);
+            console.log(responseData);
             // console.log(responseData);
 }}})

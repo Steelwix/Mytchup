@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Champion;
 use App\Entity\Matchup;
+use App\Entity\Pick;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -38,7 +40,19 @@ class MatchupRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+    public function findMatchupByPickAndEnemy(Pick $pick, Champion $enemy)
+    {
+        $qb = $this->createQueryBuilder('m');
+        $qb->select('m')
+            ->where('m.pick = :pick')
+            ->andWhere('m.opponent = :enemy')
+            ->setParameters([
+                                'pick' => $pick,
+                                'enemy' => $enemy
+                            ]);
 
+        return $qb->getQuery()->getResult();
+    }
 //    /**
 //     * @return Matchup[] Returns an array of Matchup objects
 //     */
