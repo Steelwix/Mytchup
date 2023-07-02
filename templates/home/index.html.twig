@@ -74,6 +74,15 @@
 			<div id="matchup-raw-stats"></div>
 		</div>
 
-		<div class="col-6"></div>
+ <div id="bestMatchupsList" class="row ">
+			{% for bestMatchup in bestMatchups %}
+				<div class="col-1">
+					<p>{{ bestMatchup.champion }}</p>
+					<p>{{ bestMatchup.win_rate|round(0, 'ceil') }} %</p>
+					<p> as {{ bestMatchup.playing }}</p>
+				</div>
+			{%  endfor %}</div>
+
+
 	</div>
 	</section>{% endblock %}

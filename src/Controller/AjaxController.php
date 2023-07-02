@@ -41,11 +41,25 @@ class AjaxController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
         $picks = $user->getPicks();
+        $bestMatchups = [];
         foreach ($picks as $pick) {
             if ($pick->getChampion()->getId() === $champion->getId()) {
                 $matchups = $pick->getMatchups();
 
                 foreach ($matchups as $matchup) {
+                    $winRate = ($matchup->getWonGames() / $matchup->getTotalGames()) * 100;
+                    if(count($bestMatchups) < 6){
+                        $bestMatchups[] = $this->matchupService->defineBestMatchups($matchup, $winRate, $pick);
+                    }
+                    else {
+
+                        foreach ($bestMatchups as  $key => $best){
+                            if($best['win_rate'] < $winRate){
+                                break;
+                            }
+                        }
+                        $bestMatchups[$key] = $this->matchupService->defineBestMatchups($matchup, $winRate, $pick);
+                    }
                     $pickWonGames = $pickWonGames + $matchup->getWonGames();
                     $pickWonLanes = $pickWonLanes + $matchup->getWonLanes();
                     $pickTotalGames = $pickTotalGames + $matchup->getTotalGames();
@@ -70,7 +84,8 @@ class AjaxController extends AbstractController
             'pickTotalLanes'  => $pickTotalLanes,
             'pickWinRate'     => $pickWinRate,
             'pickLaneWinRate' => $pickLaneWinRate,
-            'pickOverallRate' => $pickOverallRate
+            'pickOverallRate' => $pickOverallRate,
+            'bestMatchups' => $bestMatchups,
         ];
         return new JsonResponse(
             $responseData,
@@ -89,10 +104,25 @@ class AjaxController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
         $picks = $user->getPicks();
+        $bestMatchups = [];
         foreach ($picks as $pick) {
             $matchups = $pick->getMatchups();
             foreach ($matchups as $matchup) {
                 if ($encounter->getName() == $matchup->getOpponent()->getName()) {
+                    $winRate = ($matchup->getWonGames() / $matchup->getTotalGames()) * 100;
+                    if(count($bestMatchups) < 6){
+                        $bestMatchups[] = $this->matchupService->defineBestMatchups($matchup, $winRate, $pick);
+                    }
+                    else {
+
+                        foreach ($bestMatchups as  $key => $best){
+                            if($best['win_rate'] < $winRate){
+                                break;
+                            }
+                        }
+                        $bestMatchups[$key] = $this->matchupService->defineBestMatchups($matchup, $winRate, $pick);
+                    }
+
                     $encounterWonGames = $encounterWonGames + $matchup->getWonGames();
                     $encounterWonLanes = $encounterWonLanes + $matchup->getWonLanes();
                     $encounterTotalGames = $encounterTotalGames + $matchup->getTotalGames();
@@ -117,8 +147,11 @@ class AjaxController extends AbstractController
             'encounterTotalLanes'  => $encounterTotalLanes,
             'encounterWinRate'     => $encounterWinRate,
             'encounterLaneWinRate' => $encounterLaneWinRate,
-            'encounterOverallRate' => $encounterOverallRate
+            'encounterOverallRate' => $encounterOverallRate,
+            'bestMatchups' => $bestMatchups,
         ];
+
+        dump($bestMatchups);
         return new JsonResponse(
             $responseData,
             Response::HTTP_OK,

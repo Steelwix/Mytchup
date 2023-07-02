@@ -55,7 +55,6 @@ class DataManagerController extends AbstractController
         usort($champions, function($a, $b) {
             return strcmp($a->getName(), $b->getName());
         });
-
         return $this->render('data_manager/index.html.twig', ['picks' => $picks, 'champions' => $champions, 'datas' => $datas]);
     }
 

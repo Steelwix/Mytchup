@@ -37,7 +37,7 @@ dataAboutChampion.addEventListener('change', () => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/ajax/my-pick');
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify({ champion: pickedChampion }));
+    xhr.send(JSON.stringify({champion: pickedChampion}));
     xhr.onload = function () {
         if (xhr.status === 200) {
             // Receive the response from the Symfony controller and update the view
@@ -65,6 +65,18 @@ dataAboutChampion.addEventListener('change', () => {
             <p>Lane Domination :
                 ${responseData.pickWonLanes} / ${responseData.pickTotalLanes}</p>
             `;
+            const bestMatchupsList = document.getElementById('bestMatchupsList');
+            var backPoint = '';
+            responseData.bestMatchups.forEach(function (bestMatchup) {
+                bestMatchupsList.innerHTML = backPoint + `
+                <div class="col-1">
+<p>${ bestMatchup.champion }</p>
+<p>${ bestMatchup.win_rate } %</p>
+<p> as ${ bestMatchup.playing }</p>
+</div>
+               `;
+                backPoint = bestMatchupsList.innerHTML
+            });
         }
     }
 });
@@ -77,7 +89,7 @@ dataAboutEncounter.addEventListener('change', () => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/ajax/my-encounter');
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify({ encounter: EncounterChamp }));
+    xhr.send(JSON.stringify({encounter: EncounterChamp}));
     xhr.onload = function () {
         if (xhr.status === 200) {
             // Receive the response from the Symfony controller and update the view
@@ -105,9 +117,24 @@ dataAboutEncounter.addEventListener('change', () => {
             <p>Lane Domination :
                 ${responseData.encounterWonLanes} / ${responseData.encounterTotalLanes}</p>
             `;
+
+            const bestMatchupsList = document.getElementById('bestMatchupsList');
+            var backPoint = '';
+            responseData.bestMatchups.forEach(function (bestMatchup) {
+                bestMatchupsList.innerHTML = backPoint + `
+                <div class="col-1">
+<p>${ bestMatchup.champion }</p>
+<p>${ bestMatchup.win_rate } %</p>
+<p> as ${ bestMatchup.playing }</p>
+</div>
+               `;
+                backPoint = bestMatchupsList.innerHTML
+            });
+
         }
     }
 });
+
 function handleChampionChange() {
 
     const selectedPicked = dataAboutChampion.options[dataAboutChampion.selectedIndex];
@@ -116,20 +143,20 @@ function handleChampionChange() {
     const encounterChamp = selectedEncounter.text;
     console.log(pickedChamp);
     console.log(encounterChamp);
-if(pickedChamp != '- Select -' && encounterChamp !=  '- Select -'){
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/ajax/my-matchup');
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.send(JSON.stringify({ pick: pickedChamp,  encounter: encounterChamp}));
-    xhr.onload = function () {
-        if (xhr.status === 200) {
-            const responseData = JSON.parse(xhr.response);
-            console.log(responseData);
-            const encounter = JSON.parse(responseData.encounter);
-            const pick = JSON.parse(responseData.pick);
-            // Update the view with the responseData
-            const EncounterDetailsDiv = document.getElementById('matchup-stats');
-            EncounterDetailsDiv.innerHTML = `
+    if (pickedChamp != '- Select -' && encounterChamp != '- Select -') {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/ajax/my-matchup');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.send(JSON.stringify({pick: pickedChamp, encounter: encounterChamp}));
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                const responseData = JSON.parse(xhr.response);
+                console.log(responseData);
+                const encounter = JSON.parse(responseData.encounter);
+                const pick = JSON.parse(responseData.pick);
+                // Update the view with the responseData
+                const EncounterDetailsDiv = document.getElementById('matchup-stats');
+                EncounterDetailsDiv.innerHTML = `
             <h5>${pick.name} Versus ${encounter.name} matchup % rates : </h5>
 
             <p>WinRate :
@@ -140,8 +167,8 @@ if(pickedChamp != '- Select -' && encounterChamp !=  '- Select -'){
             <p>overallRate :
                 ${responseData.overallWinrate}%</p>
             `;
-            const EncounterRawStat = document.getElementById('matchup-raw-stats');
-            EncounterRawStat.innerHTML = `
+                const EncounterRawStat = document.getElementById('matchup-raw-stats');
+                EncounterRawStat.innerHTML = `
             <h5>${pick.name} Versus ${encounter.name} matchup rates : </h5>
 
             <p>WonGames :
@@ -149,8 +176,9 @@ if(pickedChamp != '- Select -' && encounterChamp !=  '- Select -'){
             <p>Lane Domination :
                 ${responseData.wonLanes} / ${responseData.totalGames}</p>
             `;
-        }
+            }
 
-    };
+        };
 
-}}
+    }
+}
