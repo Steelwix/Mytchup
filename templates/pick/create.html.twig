@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+{% endblock %}
+
+{% block body %}
+
+    <h1>Créer un pick</h1>
+
+    {{ form_start(createPickForm) }}
+    {{ form_row(createPickForm.champion) }}
+
+    <button type="submit" class="btn btn-primary btn-lg">Créer</button><br>
+    {{ form_end(createPickForm) }}
+{% endblock %}

@@ -5,11 +5,12 @@
     <script src="{{ asset('assets/js/submitDatas.js')}}"></script>
 {% endblock %}
 {% block body %}
+    {% for pick in picks %}
     <section class="container">
         <div class="row">
             <div class="col-12">
 
-                {% for pick in picks %}
+
                     <div class="col-1">
                 <a href="">
                     {% set picked = pick.champion.name %}
@@ -56,8 +57,7 @@
                        minlength="0"  size="10" value="{{ datas[picked][opponent].totalLanes }}">
             </div>
 
-                {% endfor %}</div></form>{% endfor %}
-        </section>
+                {% endfor %}</div></form></section>{% endfor %}
 
 
 {% endblock %}

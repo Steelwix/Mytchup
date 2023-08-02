@@ -27,7 +27,6 @@ class DataManagerController extends AbstractController
     #[Route('/data', name: 'app_data_manager')]
     public function index(Request $request): Response
     {
-
         $champions = $this->em->getRepository(Champion::class)->findAll();
         /** @var User $user */
         $user = $this->getUser();
