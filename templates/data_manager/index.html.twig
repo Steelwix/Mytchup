@@ -12,10 +12,9 @@
 
 
                     <div class="col-1">
-                <a href="">
+                        <p>
                     {% set picked = pick.champion.name %}
-                        {{ picked }}
-                </a>
+                        {{ picked }}</p>
                     </div>
 
             </div>
@@ -38,7 +37,7 @@
         <form id = "form">
         <div class="row">
 <div class="col-12 {{ picked }}">
-    <a class="btn btn-primary" id="submit">Submit</a>
+    <a class="btn btn-primary submit">Submit</a>
 </div>
                 {% for champion in champions %}
             <div class="col-4">

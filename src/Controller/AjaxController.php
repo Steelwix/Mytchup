@@ -229,7 +229,6 @@ class AjaxController extends AbstractController
     public function insertData(Request $request): JsonResponse
     {
         $datas = json_decode($request->getContent(), true);
-
         $matchups = $return = [];
         foreach ($datas as $data){
 
@@ -246,7 +245,7 @@ class AjaxController extends AbstractController
             $return[] = $match_check;
             if($count == 4 && $match_check['TG'] > 0){
                 $return[] = 'FIRST IF';
-                if($this->matchupService->matchupExists($data['id'], $data['class'], $this->getUser()) == false){
+                if($this->matchupService->matchupExists($data['id'], $data['class'], $this->getUser())){
                     $return[] = 'SECOND IF';
                 $this->matchupService->createMatchup($data['id'], $match_check, $data['class'], $this->getUser());
             }
