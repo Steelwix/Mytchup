@@ -231,6 +231,7 @@ class AjaxController extends AbstractController
         $datas = json_decode($request->getContent(), true);
         $matchups = $return = [];
         foreach ($datas as $data){
+            $return[] = $data;
 
             $matchups[$data['id']]['match_case'][$data['matchCase']] = $data['value'];
             $match_check = $matchups[$data['id']]['match_case'];
@@ -242,19 +243,16 @@ class AjaxController extends AbstractController
                     $count++;
                 }
             }
-            $return[] = $match_check;
+
             if($count == 4 && $match_check['TG'] > 0){
-                $return[] = 'FIRST IF';
                 if($this->matchupService->matchupExists($data['id'], $data['class'], $this->getUser())){
-                    $return[] = 'SECOND IF';
-                $this->matchupService->createMatchup($data['id'], $match_check, $data['class'], $this->getUser());
+                    $this->matchupService->updateMatchup($data['id'], $match_check, $data['class'], $this->getUser());
             }
             else {
-                $return[] = 'SECOND IF (ELSE)';
-                $this->matchupService->updateMatchup($data['id'], $match_check, $data['class'], $this->getUser());
-            }}
+                $this->matchupService->createMatchup($data['id'], $match_check, $data['class'], $this->getUser());
+            }
+            }
         }
-        $return[] = 'FLUSH';
         $this->em->flush();
         return new JsonResponse($return,
             Response::HTTP_OK,

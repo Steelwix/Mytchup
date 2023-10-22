@@ -51,7 +51,7 @@ class MatchupRepository extends ServiceEntityRepository
                                 'enemy' => $enemy
                             ]);
 
-        return $qb->getQuery()->getResult();
+        return $qb->getQuery()->getOneOrNullResult();
     }
 //    /**
 //     * @return Matchup[] Returns an array of Matchup objects

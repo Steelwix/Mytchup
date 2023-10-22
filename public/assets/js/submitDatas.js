@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/ajax/data-insert');
             xhr.setRequestHeader('Content-Type', 'application/json');
+            console.log(inputsData);
             xhr.send(JSON.stringify(inputsData));
             xhr.onload = function () {
                 if (xhr.status === 200) {

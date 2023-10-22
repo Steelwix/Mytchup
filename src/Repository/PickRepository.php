@@ -51,7 +51,7 @@ class PickRepository extends ServiceEntityRepository
                                 'champion' => $picked
                             ]);
 
-        return $qb->getQuery()->getResult();
+        return $qb->getQuery()->getOneOrNullResult();
     }
 
     public function findByUserAndChampion(User $user, Champion $champion){

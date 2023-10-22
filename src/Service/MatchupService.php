@@ -23,19 +23,32 @@
             $matchup->setOpponent($enemyChamp);
             $pickedChamp = $this->em->getRepository(Champion::class)->findOneBy(['name' => $picked]);
             $pick = $this->em->getRepository(Pick::class)->findPickByUserAndChampion($user, $pickedChamp);
-            $matchup->setPick($pick[0]);
+            $matchup->setPick($pick);
             $matchup->setWonGames($matches['WG']);
             $matchup->setWonLanes($matches['WL']);
             $matchup->setTotalGames($matches['TG']);
             $matchup->setTotalLanes($matches['TL']);
             $this->em->persist($matchup);
+            $this->em->flush();
 
         }
             public function matchupExists(string $enemy, string $picked, User $user){
                 $pickedChamp = $this->em->getRepository(Champion::class)->findOneBy(['name' => $picked]);
                 $enemyChamp = $this->em->getRepository(Champion::class)->findOneBy(['name' => $enemy]);
                 $pick = $this->em->getRepository(Pick::class)->findPickByUserAndChampion($user, $pickedChamp);
-                return  $this->em->getRepository(Matchup::class)->findByOpponent($enemyChamp);
+                $matchupRepository = $this->em->getRepository(Matchup::class);
+
+                $result = $matchupRepository->createQueryBuilder('m')
+                    ->where('m.pick = :pick')
+                    ->andWhere('m.opponent =  :opponent')
+                    ->setParameters(['pick' => $pick, 'opponent' => $enemyChamp])
+                    ->getQuery()
+                    ->getOneOrNullResult();
+
+                if($result){
+                    return true;
+                }
+                return false;
 
             }
 
@@ -43,12 +56,12 @@
             $enemyChamp = $this->em->getRepository(Champion::class)->findOneBy(['name' => $enemy]);
             $pickedChamp = $this->em->getRepository(Champion::class)->findOneBy(['name' => $picked]);
             $pick = $this->em->getRepository(Pick::class)->findPickByUserAndChampion($user, $pickedChamp);
-            $matchup = $this->em->getRepository(Matchup::class)->findMatchupByPickAndEnemy($pick[0], $enemyChamp);
-            $matchup[0]->setWonGames($matches['WG']);
-            $matchup[0]->setWonLanes($matches['WL']);
-            $matchup[0]->setTotalGames($matches['TG']);
-            $matchup[0]->setTotalLanes($matches['TL']);
-            $this->em->persist($matchup[0]);
+            $matchup = $this->em->getRepository(Matchup::class)->findMatchupByPickAndEnemy($pick, $enemyChamp);
+            $matchup->setWonGames($matches['WG']);
+//            $matchup[0]->setWonLanes($matches['WL']);
+//            $matchup[0]->setTotalGames($matches['TG']);
+//            $matchup[0]->setTotalLanes($matches['TL']);
+//           $this->em->flush();
 
         }
         public function getMatchupsFromUser(User $user){
