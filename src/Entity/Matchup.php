@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\MatchupRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 #[ORM\Entity(repositoryClass: MatchupRepository::class)]
 class Matchup
@@ -13,21 +15,39 @@ class Matchup
     #[ORM\Column]
     private ?int $id = null;
 
+    /**
+     * @Groups({"getEncounter"})
+     */
     #[ORM\ManyToOne(inversedBy: 'matchups')]
     private ?Pick $pick = null;
 
+    /**
+     * @Groups({"getChampion", "getEncounter"})
+     */
     #[ORM\ManyToOne(inversedBy: 'matchups')]
     private ?Champion $opponent = null;
 
+    /**
+     * @Groups({"getChampion", "getEncounter"})
+     */
     #[ORM\Column(nullable: true)]
     private ?int $wonGames = null;
 
+    /**
+     * @Groups({"getChampion", "getEncounter"})
+     */
     #[ORM\Column(nullable: true)]
     private ?int $wonLanes = null;
 
+    /**
+     * @Groups({"getChampion", "getEncounter"})
+     */
     #[ORM\Column(nullable: true)]
     private ?int $totalGames = null;
 
+    /**
+     * @Groups({"getChampion", "getEncounter"})
+     */
     #[ORM\Column(nullable: true)]
     private ?int $totalLanes = null;
 

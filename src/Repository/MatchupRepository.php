@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Champion;
 use App\Entity\Matchup;
 use App\Entity\Pick;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -40,20 +41,67 @@ class MatchupRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
-    public function findMatchupByPickAndEnemy(Pick $pick, Champion $enemy)
+
+    // Retourne le matchup d'un pick et d'un champion
+    public function findMatchupByPickAndEnemy(Pick $pick, Champion $enemy, $addSuggestions = false)
     {
         $qb = $this->createQueryBuilder('m');
         $qb->select('m')
             ->where('m.pick = :pick')
             ->andWhere('m.opponent = :enemy')
             ->setParameters([
-                                'pick' => $pick,
+                                'pick'  => $pick,
                                 'enemy' => $enemy
                             ]);
 
-        return $qb->getQuery()->getOneOrNullResult();
+        $bestMatchup[] = $qb->getQuery()->getOneOrNullResult();
+        if (!$addSuggestions) {
+            return $bestMatchup;
+        }
+
+        if (!$bestMatchup) {
+            $bestMatchup[] = $this->findBestMatchupForThisOpponent($pick->getPlayer(), $enemy);
+        }
+            
+        //TODO: Ajouter 4 suggestions de champions
+            return $bestMatchup;
+        }
+
+
+
+
+    // Retourne les 5 meilleurs matchups pour un utilisateur et un champion
+    public function findBestMatchupForThisOpponent(User $user, Champion $enemy)
+    {
+        $qb = $this->createQueryBuilder('m');
+        $qb->select('m')
+            ->leftJoin('m.pick', 'p')
+            ->where('p.player = :user')
+            ->andWhere('m.opponent = :enemy')
+            ->setParameters([
+                                'enemy' => $enemy,
+                                'user' => $user,
+                            ]);
+
+        $allMatchups = $qb->getQuery()->getResult();
+
+        // Tri des matchups par taux de victoire (win rate) décroissant
+        usort($allMatchups, function ($a, $b) {
+            $winRateA = $a->getTotalGames() > 0 ? ($a->getWonGames() / $a->getTotalGames()) * 100 : 0;
+            $winRateB = $b->getTotalGames() > 0 ? ($b->getWonGames() / $b->getTotalGames()) * 100 : 0;
+            return $winRateB <=> $winRateA; // Tri décroissant
+        });
+
+        // Retourne les 6 meilleurs matchups
+        return array_slice($allMatchups, 0, 6);
     }
+
+//Retourne les 5 meilleurs matchups avec ce pick
+    public function findBestMatchupForThisPick(Pick $pick){}
+
 //    /**
+
+
 //     * @return Matchup[] Returns an array of Matchup objects
 //     */
 //    public function findByExampleField($value): array

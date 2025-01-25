@@ -18,6 +18,7 @@ class Champion
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
     /**
      * @Groups({"getChampion", "getEncounter"})
      */

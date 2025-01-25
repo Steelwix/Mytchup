@@ -4,84 +4,87 @@
 {% endblock %}
 {% block body %}
 	<section class="container">
-		<div class="row">
-			<div class="col-12 text-center">
-				<h1>WELCOME ON MYTCHUP</h1>
-			</div>
+	<div class="row">
+		<div class="col-12 text-center">
+			<h1>WELCOME ON MYTCHUP</h1>
+		</div>
 
-			<div class="col-6">
-				<h3>Your pick</h3>
-				<div id="firstChampion">
-					{{ form_start(newGameStat)}}
-					{{ form_widget(newGameStat.firstChampion)}}
-				</div>
-			</div>
-			<div class="col-6">
-				<h3>Your enemy</h3>
-				<div id="secondChampion">
-					{{ form_row(newGameStat.secondChampion)}}
-				</div>
-			</div>
-			<div class="col-6">
-				<div id="game_won" class="d-none">
-					{{ form_row(newGameStat.game_won)}}
-				</div>
-			</div>
-			<div class="col-6">
-				<div id="matchup_won" class="d-none">
-					{{ form_row(newGameStat.matchup_won )}}
-				</div>
-			</div>
-			<div class="col-12 text-center">
-				<div id="save" class="d-none">
-					{{ form_row(newGameStat.save)}}
-				</div>
-				{{ form_end(newGameStat)}}</div>
 		<div class="col-6">
-			<h3>Your stats</h3>
-
+			<h3>Your pick</h3>
+			<div id="firstChampion">
+				{{ form_start(newGameStat)}}
+				{{ form_widget(newGameStat.firstChampion)}}
+			</div>
 		</div>
 		<div class="col-6">
-			<h3>Matchups</h3>
-
+			<h3>Your enemy</h3>
+			<div id="secondChampion">
+				{{ form_row(newGameStat.secondChampion)}}
+			</div>
 		</div>
-		<div class="col-3">
-			<h5>Rates%</h5>
-
-			<p>WinRate :
-				{{globalWinRate}}%</p>
-			<p>Lane Domination :
-				{{globalLaneWinRate}}%</p>
-
-			<p>overallRate :
-				{{globalOverallRate}}%</p>
-			<div id="champion-stats"></div>
-			<div id="encounter-stats"></div>
-			<div id="matchup-stats"></div>
+		<div class="col-6">
+			<div id="game_won" class="d-none">
+				{{ form_row(newGameStat.game_won)}}
+			</div>
 		</div>
-		<div class="col-3">
-			<h5>rawStats</h5>
-			<p>wonGames :
-				{{globalWonGames}}
-				/
-				{{globalTotalGames}}</p>
-			<p>Dominated lanes :
-				{{globalWonLanes}}
-				/
-				{{globalTotalLanes}}</p>
-			<div id="champion-raw-stats"></div>
-			<div id="encounter-raw-stats"></div>
-			<div id="matchup-raw-stats"></div>
+		<div class="col-6">
+			<div id="matchup_won" class="d-none">
+				{{ form_row(newGameStat.matchup_won )}}
+			</div>
 		</div>
+		<div class="col-12 text-center">
+			<div id="save" class="d-none">
+				{{ form_row(newGameStat.save)}}
+			</div>
+			{{ form_end(newGameStat)}}</div>
+{#		<div class="col-6">#}
+{#			<h3>Your stats</h3>#}
 
- <div id="bestMatchupsList" class="row ">
-			{% for bestMatchup in bestMatchups %}
-				<div class="col-1">
-					<p>{{ bestMatchup.champion }}</p>
-					<p>{{ bestMatchup.win_rate|round(0, 'ceil') }} %</p>
-					<p> as {{ bestMatchup.playing }}</p>
-				</div>
-			{%  endfor %}</div>
+{#		</div>#}
+{#		<div class="col-6">#}
+{#			<h3>Matchups</h3>#}
+
+{#		</div>#}
+{#		<div class="col-3">#}
+{#			<h5>Rates%</h5>#}
+
+{#			<p>WinRate :#}
+{#				{{globalWinRate}}%</p>#}
+{#			<p>Lane Domination :#}
+{#				{{globalLaneWinRate}}%</p>#}
+
+{#			<p>overallRate :#}
+{#				{{globalOverallRate}}%</p>#}
+{#			<div id="champion-stats"></div>#}
+{#			<div id="encounter-stats"></div>#}
+{#			<div id="matchup-stats"></div>#}
+{#		</div>#}
+{#		<div class="col-3">#}
+{#			<h5>rawStats</h5>#}
+{#			<p>wonGames :#}
+{#				{{globalWonGames}}#}
+{#				/#}
+{#				{{globalTotalGames}}</p>#}
+{#			<p>Dominated lanes :#}
+{#				{{globalWonLanes}}#}
+{#				/#}
+{#				{{globalTotalLanes}}</p>#}
+{#			<div id="champion-raw-stats"></div>#}
+{#			<div id="encounter-raw-stats"></div>#}
+{#			<div id="matchup-raw-stats"></div>#}
+{#		</div>#}
+
+		<template id="matchupTemplate">
+			<div class="col-1 text-center">
+				<p class="opponent-name"></p>
+				<p class="win-rate"></p>
+				<p class="pick-info"></p>
+				<p class="total-played"></p>
+			</div>
+		</template>
+
+		<div id="bestMatchupsList" class="d-flex flex-wrap justify-content-start"></div>
+
 
 
 	</div>

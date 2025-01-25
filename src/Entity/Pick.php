@@ -6,6 +6,8 @@ use App\Repository\PickRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 #[ORM\Entity(repositoryClass: PickRepository::class)]
 class Pick
@@ -18,6 +20,9 @@ class Pick
     #[ORM\ManyToOne(inversedBy: 'picks')]
     private ?User $player = null;
 
+    /**
+     * @Groups({ "getEncounter"})
+     */
     #[ORM\ManyToOne(inversedBy: 'picks')]
     private ?Champion $champion = null;
 

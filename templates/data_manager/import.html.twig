@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Import a stat file
+{% endblock %}
+
+{% block body %}
+    <section class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1>Import a stat file</h1>
+            </div>
+            <div class="card bg-dark col-10 col-md-9 col-lg-6 mx-auto text-center">
+                {{ form_start(form)}}
+                {{ form_row(form.file)}}
+                <button type="submit" class="btn btn-primary btn-lg">Import</button>
+                {{ form_end(form)}}
+            </div>
+        </div>
+    </section>
+{% endblock %}

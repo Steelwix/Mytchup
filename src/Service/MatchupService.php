@@ -10,11 +10,9 @@
 
     class MatchupService
     {
-        private $em;
-        public function __construct(EntityManagerInterface $em)
+        public function __construct(private EntityManagerInterface $em)
         {
             $this->em = $em;
-            // Service constructor
         }
 
         public function createMatchup(string $enemy, array $matches, string $picked, User $user){
@@ -96,7 +94,7 @@
             return false;
         }
 
-        public function defineBestMatchups(Matchup $matchup, int $winRate, Pick $pick,){
+        public function defineBestMatchups(Matchup $matchup, int $winRate, Pick $pick){
             $return['champion'] = $matchup->getOpponent()->getName();
             $return['win_rate'] = $winRate;
             $return['playing'] = $pick->getChampion()->getName();
