@@ -53,16 +53,12 @@ class PushNewStatFormType extends AbstractType
             ->add('save', SubmitType::class, [
                 'label' => 'Submit',
 
-                'attr' => [
-                    'id' => 'save'
-                ]
             ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Champion::class,
         ]);
     }
 }

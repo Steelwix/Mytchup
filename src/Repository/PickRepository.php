@@ -54,16 +54,47 @@ class PickRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult();
     }
 
-    public function findByUserAndChampion(User $user, Champion $champion){
-        return $this->createQueryBuilder('p')
-            ->where('p.player = :user')
-            ->andWhere('p.champion = :champion')
-            ->setParameter('user', $user)
-            ->setParameter('champion', $champion)
-            ->getQuery()
-            ->getOneOrNullResult();
+    public function findBestWinrate(array $picks): ?Pick
+    {
+        $bestPick = null;
+        $bestWinrate = 0;
+
+        foreach ($picks as $pick) {
+            $query = $this->_em->createQuery('
+            SELECT SUM(m.totalGames) AS totalGames, SUM(m.wonGames) AS wonGames
+            FROM App\Entity\Matchup m
+            WHERE m.pick = :pick
+        ')->setParameter('pick', $pick);
+
+            $result = $query->getSingleResult();
+
+            if ($result['totalGames'] > 0) {
+                $winrate = ($result['wonGames'] / $result['totalGames']) * 100;
+                if ($winrate > $bestWinrate) {
+                    $bestWinrate = $winrate;
+                    $bestPick = $pick;
+                }
+            }
+        }
+
+        return $bestPick;
     }
 
+    public function findMostPickedOfThisUser(User $user)
+    {
+        $query = $this->_em->createQueryBuilder()
+            ->select('m')
+            ->from('App\Entity\Matchup', 'm') // Assurez-vous de remplacer par la classe correcte
+            ->leftJoin('m.pick', 'p')           // Vérifiez que la relation "m.pick" existe bien
+            ->where('p.player = :user')
+            ->setParameter('user', $user)
+            ->orderBy('m.totalGames', 'DESC')
+            ->addOrderBy('m.wonGames', 'DESC')
+            ->setMaxResults(6)
+            ->getQuery();
+
+        return $query->getResult();
+    }
 //    /**
 //     * @return Pick[] Returns an array of Pick objects
 //     */

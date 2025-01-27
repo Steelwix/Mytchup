@@ -84,21 +84,68 @@ class MatchupRepository extends ServiceEntityRepository
                             ]);
 
         $allMatchups = $qb->getQuery()->getResult();
-
-        // Tri des matchups par taux de victoire (win rate) décroissant
-        usort($allMatchups, function ($a, $b) {
-            $winRateA = $a->getTotalGames() > 0 ? ($a->getWonGames() / $a->getTotalGames()) * 100 : 0;
-            $winRateB = $b->getTotalGames() > 0 ? ($b->getWonGames() / $b->getTotalGames()) * 100 : 0;
-            return $winRateB <=> $winRateA; // Tri décroissant
-        });
-
-        // Retourne les 6 meilleurs matchups
-        return array_slice($allMatchups, 0, 6);
+        return $this->compareMatchups($allMatchups);
     }
 
 //Retourne les 5 meilleurs matchups avec ce pick
-    public function findBestMatchupForThisPick(Pick $pick){}
+    public function findBestMatchupForThisPick(Pick $pick){
+        $qb = $this->createQueryBuilder('m');
+        $qb->select('m')
+            ->where('m.pick = :pick')
+            ->setParameters([
+                'pick' => $pick,
+            ]);
 
+        $allMatchups = $qb->getQuery()->getResult();
+        return $this->compareMatchups($allMatchups);
+
+    }
+
+        private function compareMatchups($allMatchups, int $max = 6) {
+
+            // Tri des matchups par taux de victoire (win rate) décroissant
+            usort($allMatchups, function ($a, $b) {
+                $winRateA = $a->getTotalGames() > 0 ? ($a->getWonGames() / $a->getTotalGames()) * 100 : 0;
+                $winRateB = $b->getTotalGames() > 0 ? ($b->getWonGames() / $b->getTotalGames()) * 100 : 0;
+                if ($winRateA === $winRateB) {
+                    $laneRateA = $a->getTotalLanes() > 0 ? ($a->getWonLanes() / $a->getTotalLanes()) * 100 : 0;
+                    $laneRateB = $b->getTotalLanes() > 0 ? ($b->getWonLanes() / $b->getTotalLanes()) * 100 : 0;
+
+
+                    if ($laneRateA == null && $laneRateB != null) {
+                        return 1;
+                    }
+                    if ($laneRateB == null && $laneRateA != null) {
+                        return -1;
+                    }
+
+
+                    if ($laneRateA == null && $laneRateB == null) {
+                        if( $a->getTotalGames() == $b->getTotalGames()) {
+                            $picks['a'] = $a->getPick();
+                            $picks['b'] = $b->getPick();
+                            $bestPick = $this->_em->getRepository(Pick::class)->findBestWinrate($picks);
+                            if($bestPick == $a->getPick()) {
+                                return -1;
+                            } else {
+                                return 1;
+                            }}
+                        if($a->getTotalGames() > $b->getTotalGames()) {
+                            return -1;
+                        }
+                        return 1;
+
+                    }
+
+                    return $laneRateB <=> $laneRateA;
+                }
+
+                return $winRateB <=> $winRateA;
+            });
+
+            // Retourne les 6 meilleurs matchups
+            return array_slice($allMatchups, 0, $max);
+        }
 //    /**
 
 

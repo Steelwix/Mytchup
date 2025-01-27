@@ -2,15 +2,15 @@
 
 namespace App\Controller;
 
-use App\Entity\Champion;
+use App\Entity\Pick;
 use App\Form\PushNewStatFormType;
 use App\Service\API\GetAllChampsService;
 use App\Service\MatchupService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class HomeController extends AbstractController
 {
@@ -27,12 +27,19 @@ class HomeController extends AbstractController
     }
 
     #[Route('/', name: 'app_home')]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $globalWonGames = $globalWonLanes = $globalTotalGames = $globalTotalLanes = 0;
         $form = $this->createForm(PushNewStatFormType::class);
-
-        if ($this->getUser() != null) {
+        $form->handleRequest($request);
+        if($form->isSubmitted() && $form->isValid()) {
+            dd($form->getData());
+            $userChampion = $form->getData()['firstChampion'];
+            $opponentChampion = $form->getData()['secondChampion'];
+            $stats['WG'] = $form->getData()['game_won'];
+            $stats['WL'] = $form->getData()['matchup_won'];
+            $this->matchupManager->processMatchup($userChampion, $opponentChampion, $stats);
+        }
 
 
             /** @var User $user */
@@ -49,7 +56,7 @@ class HomeController extends AbstractController
                     $globalTotalLanes = $globalTotalLanes + $matchup->getTotalLanes();
                 }
             }
-        }
+
         $globalWinRate = $globalLaneWinRate = 0;
         if ($globalTotalGames != 0) {
             $globalWinRate = ($globalWonGames / $globalTotalGames) * 100;
@@ -58,10 +65,11 @@ class HomeController extends AbstractController
             $globalLaneWinRate = ($globalWonLanes / $globalTotalLanes) * 100;
         }
         $globalOverallRate = ($globalWinRate + $globalLaneWinRate) / 2;
+        $bestMatchups = $this->em->getRepository(Pick::class)->findMostPickedOfThisUser($this->getUser());
         return $this->render('home/index.html.twig', [
             'newGameStat' => $form->createView(), 'globalWonGames' => $globalWonGames, 'globalWonLanes' => $globalWonLanes,
             'globalTotalGames' => $globalTotalGames, 'globalTotalLanes' => $globalTotalLanes, 'globalWinRate' => $globalWinRate,
-            'globalLaneWinRate' => $globalLaneWinRate, 'globalOverallRate' => $globalOverallRate, 'bestMatchups' => []
+            'globalLaneWinRate' => $globalLaneWinRate, 'globalOverallRate' => $globalOverallRate, 'bestMatchups' => $bestMatchups
         ]);
     }
 }
