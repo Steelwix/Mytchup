@@ -104,17 +104,17 @@ class AjaxController extends AbstractController
         $champion = $this->em->getRepository(Champion::class)->findOneBy(['name' => $championName]);
         $bestMatchups= [];
         $pick = null;
-
         if($champion){
             $pick = $this->em->getRepository(Pick::class)->findPickByUserAndChampion($this->getUser(), $champion);
         }
+
         if($encounter && $pick){
             $bestMatchups = $this->em->getRepository(Matchup::class)->findMatchupByPickAndEnemy($pick, $encounter, true);
         }
-        if(!$pick){
+        elseif(!$pick){
             $bestMatchups = $this->em->getRepository(Matchup::class)->findBestMatchupForThisOpponent($this->getUser(), $encounter);
         }
-        if(!$encounter){
+        elseif(!$encounter){
             $bestMatchups = $this->em->getRepository(Matchup::class)->findBestMatchupForThisPick($pick);
         }
         $bestMatchups = $this->serializer->serialize($bestMatchups, 'json', ['groups' => ['getEncounter']]);

@@ -33,7 +33,6 @@ class HomeController extends AbstractController
         $form = $this->createForm(PushNewStatFormType::class);
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()) {
-            dd($form->getData());
             $userChampion = $form->getData()['firstChampion'];
             $opponentChampion = $form->getData()['secondChampion'];
             $stats['WG'] = $form->getData()['game_won'];

@@ -38,6 +38,8 @@
 			</div>
 			{{ form_end(newGameStat)}}
 		</div>
+
+		<div style="margin-top: 50px; margin-bottom: 50px"></div>
 {#		<div class="col-6">#}
 {#			<h3>Your stats</h3>#}
 
@@ -75,8 +77,8 @@
 {#			<div id="matchup-raw-stats"></div>#}
 {#		</div>#}
 
-		<template id="matchupTemplate">
-			<div class="col-1 text-center">
+		<template id="matchupTemplate" class="">
+			<div class="col-1 text-center card card-bg">
 				<p class="opponent-name"></p>
 				<p class="win-rate"></p>
 				<p class="pick-info"></p>
@@ -86,10 +88,10 @@
 
 		<div id="bestMatchupsList" class="d-flex flex-wrap justify-content-start">
 			{% for matchup in bestMatchups %}
-			<div class="col-1 text-center">
-				<p class="opponent-name">{{ matchup.opponent.name }}</p>
-				<p class="win-rate">{{ matchup.wonGames/matchup.totalGames*100 }}</p>
-				<p class="pick-info">{{ matchup.pick.champion.name }}</p>
+			<div class="col-1 text-center card card-bg">
+				<p class="opponent-name">{{ matchup.pick.champion.name }}</p>
+				<p class="win-rate">{{ (matchup.wonGames/matchup.totalGames*100)|round(0) }}</p>
+				<p class="pick-info">{{ matchup.opponent.name }}</p>
 				<p class="total-played">{{ matchup.totalGames }} games</p>
 			</div>
 			{% endfor %}

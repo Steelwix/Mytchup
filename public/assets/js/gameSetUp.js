@@ -54,12 +54,13 @@ const handleChampionChange = () => {
             const bestMatchupsList = document.getElementById('bestMatchupsList');
             const template = document.getElementById('matchupTemplate');
             document.getElementById('bestMatchupsList').innerHTML = '';
+            const bestMatchupsArray = Array.isArray(bestMatchups) ? bestMatchups : bestMatchups ? [bestMatchups] : [];
 
-            bestMatchups.forEach(function (bestMatchup) {
+            bestMatchupsArray.forEach(function (bestMatchup) {
                 const clone = template.content.cloneNode(true);
-                clone.querySelector('.opponent-name').textContent = bestMatchup.opponent.name;
+                clone.querySelector('.opponent-name').textContent = bestMatchup.pick.champion.name;
                 clone.querySelector('.win-rate').textContent = `${(bestMatchup.wonGames / bestMatchup.totalGames * 100).toFixed(2)}%`;
-                clone.querySelector('.pick-info').textContent = `${bestMatchup.pick.champion.name}`;
+                clone.querySelector('.pick-info').textContent = `${bestMatchup.opponent.name}`;
                 clone.querySelector('.total-played').textContent = `(${bestMatchup.totalGames} games)`;
                 bestMatchupsList.appendChild(clone);
             });

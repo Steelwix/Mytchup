@@ -54,13 +54,13 @@ class MatchupRepository extends ServiceEntityRepository
                                 'enemy' => $enemy
                             ]);
 
-        $bestMatchup[] = $qb->getQuery()->getOneOrNullResult();
+        $bestMatchup = $qb->getQuery()->getOneOrNullResult();
         if (!$addSuggestions) {
             return $bestMatchup;
         }
 
         if (!$bestMatchup) {
-            $bestMatchup[] = $this->findBestMatchupForThisOpponent($pick->getPlayer(), $enemy);
+            $bestMatchup = $this->findBestMatchupForThisOpponent($pick->getPlayer(), $enemy);
         }
             
         //TODO: Ajouter 4 suggestions de champions
