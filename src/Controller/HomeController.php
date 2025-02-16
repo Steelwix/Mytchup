@@ -30,6 +30,7 @@ class HomeController extends AbstractController
     public function index(Request $request): Response
     {
         $globalWonGames = $globalWonLanes = $globalTotalGames = $globalTotalLanes = 0;
+        $bestMatchups = [];
         $form = $this->createForm(PushNewStatFormType::class);
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()) {
@@ -41,34 +42,42 @@ class HomeController extends AbstractController
         }
 
 
-            /** @var User $user */
             $user = $this->getUser();
+        if($user){
             $picks = $user->getPicks();
+            $bestMatchups = $this->em->getRepository(Pick::class)->findMostPickedOfThisUser($user);
 
-
-            foreach ($picks as $pick) {
-                $matchups = $pick->getMatchups();
-                foreach ($matchups as $matchup) {
-                    $globalWonGames = $globalWonGames + $matchup->getWonGames();
-                    $globalWonLanes = $globalWonLanes + $matchup->getWonLanes();
-                    $globalTotalGames = $globalTotalGames + $matchup->getTotalGames();
-                    $globalTotalLanes = $globalTotalLanes + $matchup->getTotalLanes();
-                }
-            }
-
-        $globalWinRate = $globalLaneWinRate = 0;
-        if ($globalTotalGames != 0) {
-            $globalWinRate = ($globalWonGames / $globalTotalGames) * 100;
         }
-        if ($globalTotalLanes != 0) {
-            $globalLaneWinRate = ($globalWonLanes / $globalTotalLanes) * 100;
+        else {
+            $picks = $this->em->getRepository(Pick::class)->findAll();
+            $bestMatchups = $this->em->getRepository(Pick::class)->findMostPickedOfThisUser();
         }
-        $globalOverallRate = ($globalWinRate + $globalLaneWinRate) / 2;
-        $bestMatchups = $this->em->getRepository(Pick::class)->findMostPickedOfThisUser($this->getUser());
+
+
+//            foreach ($picks as $pick) {
+//                $matchups = $pick->getMatchups();
+//                foreach ($matchups as $matchup) {
+//                    $globalWonGames = $globalWonGames + $matchup->getWonGames();
+//                    $globalWonLanes = $globalWonLanes + $matchup->getWonLanes();
+//                    $globalTotalGames = $globalTotalGames + $matchup->getTotalGames();
+//                    $globalTotalLanes = $globalTotalLanes + $matchup->getTotalLanes();
+//                }
+//            }
+//
+//        $globalWinRate = $globalLaneWinRate = 0;
+//        if ($globalTotalGames != 0) {
+//            $globalWinRate = ($globalWonGames / $globalTotalGames) * 100;
+//        }
+//        if ($globalTotalLanes != 0) {
+//            $globalLaneWinRate = ($globalWonLanes / $globalTotalLanes) * 100;
+//        }
+//        $globalOverallRate = ($globalWinRate + $globalLaneWinRate) / 2;
         return $this->render('home/index.html.twig', [
-            'newGameStat' => $form->createView(), 'globalWonGames' => $globalWonGames, 'globalWonLanes' => $globalWonLanes,
-            'globalTotalGames' => $globalTotalGames, 'globalTotalLanes' => $globalTotalLanes, 'globalWinRate' => $globalWinRate,
-            'globalLaneWinRate' => $globalLaneWinRate, 'globalOverallRate' => $globalOverallRate, 'bestMatchups' => $bestMatchups
+            'newGameStat' => $form->createView(),
+//            'globalWonGames' => $globalWonGames, 'globalWonLanes' => $globalWonLanes,
+//            'globalTotalGames' => $globalTotalGames, 'globalTotalLanes' => $globalTotalLanes, 'globalWinRate' => $globalWinRate,
+//            'globalLaneWinRate' => $globalLaneWinRate, 'globalOverallRate' => $globalOverallRate,
+            'bestMatchups' => $bestMatchups
         ]);
     }
 }

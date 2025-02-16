@@ -80,21 +80,24 @@ class PickRepository extends ServiceEntityRepository
         return $bestPick;
     }
 
-    public function findMostPickedOfThisUser(User $user)
+    public function findMostPickedOfThisUser(User $user = null)
     {
-        $query = $this->_em->createQueryBuilder()
+        $qb = $this->_em->createQueryBuilder()
             ->select('m')
-            ->from('App\Entity\Matchup', 'm') // Assurez-vous de remplacer par la classe correcte
-            ->leftJoin('m.pick', 'p')           // Vérifiez que la relation "m.pick" existe bien
-            ->where('p.player = :user')
-            ->setParameter('user', $user)
+            ->from('App\Entity\Matchup', 'm')
+            ->leftJoin('m.pick', 'p')
             ->orderBy('m.totalGames', 'DESC')
             ->addOrderBy('m.wonGames', 'DESC')
-            ->setMaxResults(6)
-            ->getQuery();
+            ->setMaxResults(6);
 
-        return $query->getResult();
+        if ($user !== null) {
+            $qb->where('p.player = :user')
+                ->setParameter('user', $user);
+        }
+
+        return $qb->getQuery()->getResult();
     }
+
 //    /**
 //     * @return Pick[] Returns an array of Pick objects
 //     */
