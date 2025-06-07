@@ -5,8 +5,18 @@ var matchupWon = document.getElementById('matchup_won');
 var save = document.getElementById('save');
 var globalWin = document.getElementById('globalWin');
 
+firstChampion.addEventListener('change', function () {
+    console.log(this, secondChampion);
+    if (this.value !== '- Select -' && secondChampion.value !== '- Select -') {
+        gameWon.classList.remove('d-none');
+    } else {
+        gameWon.classList.add('d-none');
+    }
+});
 secondChampion.addEventListener('change', function () {
-    if (this.value !== '- Select -') {
+    console.log(this.value, firstChampion.value);
+
+    if (this.value !== '- Select -' && firstChampion.value !== '- Select -') {
         gameWon.classList.remove('d-none');
     } else {
         gameWon.classList.add('d-none');
@@ -58,10 +68,16 @@ const handleChampionChange = () => {
 
             bestMatchupsArray.forEach(function (bestMatchup) {
                 const clone = template.content.cloneNode(true);
+                console.log(bestMatchup);
                 clone.querySelector('.opponent-name').textContent = bestMatchup.pick.champion.name;
                 clone.querySelector('.win-rate').textContent = `${(bestMatchup.wonGames / bestMatchup.totalGames * 100).toFixed(2)}%`;
                 clone.querySelector('.pick-info').textContent = `${bestMatchup.opponent.name}`;
-                clone.querySelector('.total-played').textContent = `(${bestMatchup.totalGames} games)`;
+                clone.querySelector('.total-played').textContent = `${bestMatchup.totalGames} games`;
+                if (bestMatchup.wonLanes != null && bestMatchup.totalLanes != null) {
+                    clone.querySelector('.lane-domination').textContent = `${bestMatchup.wonLanes} / ${bestMatchup.totalLanes} dominations`;
+                } else {
+                    clone.querySelector('.lane-domination').textContent = '';
+                }
                 bestMatchupsList.appendChild(clone);
             });
         }

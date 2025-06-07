@@ -81,21 +81,25 @@
 {#		</div>#}
 
 		<template id="matchupTemplate" class="">
-			<div class="col-1 text-center card card-bg">
+			<div class="col-2 text-center card bg-dark">
 				<p class="opponent-name"></p>
 				<p class="win-rate"></p>
 				<p class="pick-info"></p>
 				<p class="total-played"></p>
+				<p class="lane-domination"></p>
 			</div>
 		</template>
 
 		<div id="bestMatchupsList" class="d-flex flex-wrap justify-content-start">
 			{% for matchup in bestMatchups %}
-			<div class="col-1 text-center card card-bg">
+			<div class="col-2 text-center card bg-dark">
 				<p class="opponent-name">{{ matchup.pick.champion.name }}</p>
-				<p class="win-rate">{{ (matchup.wonGames/matchup.totalGames*100)|round(0) }}</p>
+				<p class="win-rate">{{ (matchup.wonGames/matchup.totalGames*100)|round(2) }} %</p>
 				<p class="pick-info">{{ matchup.opponent.name }}</p>
 				<p class="total-played">{{ matchup.totalGames }} games</p>
+				{% if matchup.wonLanes is not null and matchup.totalLanes is not null %}
+				<p class="lane-domination">{{ matchup.wonLanes }} / {{ matchup.totalLanes }} dominations</p>
+				{% endif %}
 			</div>
 			{% endfor %}
 		</div>
